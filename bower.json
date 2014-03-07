@@ -1,0 +1,30 @@
+{
+  "name": "mw-collection",
+  "version": "0.0.0",
+  "authors": [
+    "Volker Tietz <v.tietz@mwaysolutions.com>"
+  ],
+  "description": "Adds Backbone models and collections as a model layer to AngularJS",
+  "main": "src/mw-collection.js",
+  "keywords": [
+    "Backbone",
+    "AngularJS",
+    "Models",
+    "Collections"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ],
+  "dependencies": {
+    "angular": "~1.2.14",
+    "backbone": "~1.1.2"
+  },
+  "devDependencies": {
+    "angular-mocks": "~1.2.14"
+  }
+}

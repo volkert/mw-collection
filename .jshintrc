@@ -8,6 +8,8 @@
     "it" : false,
     "beforeEach" : false,
     "describe" : false,
-    "afterEach" : false
+    "afterEach" : false,
+    "module" : false,
+    "inject" : false
   }
 }

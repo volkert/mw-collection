@@ -18,6 +18,7 @@
         mwCollectionFilter = MwCollectionFilter;
 
         collectionWithModel = new (MwCollection.extend({
+          perPage: 5,
           model: MwModel,
           url: '/path/to/collection',
           filterValues: {
@@ -45,8 +46,31 @@
         $httpBackend.verifyNoOutstandingRequest();
       });
 
+      it('should create a blank instance of a model', inject(function (MwModel) {
+        var Foo = MwModel.extend({
+          defaults: function () {
+            return {
+              name: {},
+              description: {}
+            };
+          }
+        });
+        var model1 = new Foo();
+        model1.attributes.name.de_DE = 'bar';
+
+        var model2 = new Foo();
+        expect(model2.attributes.name.de_DE).not.toBeDefined();
+      }));
+
       it('should make a response with $http to the url specified in the model', function () {
-        $httpBackend.expectGET('/path/to/collection').respond(200, { results: [] });
+        $httpBackend.expectGET('/path/to/collection?limit=5&offset=0').respond(200, { results: [] });
+        collectionWithModel.fetch();
+        $httpBackend.flush();
+      });
+
+      it('should append custom URL parameters', function () {
+        $httpBackend.expectGET('/path/to/collection?foo=bar&limit=5&offset=0').respond(200, { results: [] });
+        collectionWithModel.customUrlParams = { foo: 'bar' };
         collectionWithModel.fetch();
         $httpBackend.flush();
       });
@@ -66,7 +90,7 @@
             mwCollectionFilter.containsString('name', 'Office')
           ]));
 
-          var encodedFilter = "%7B%22type%22:%22logOp%22,%22operation%22:%22AND%22,%22filters%22:%5B%7B%22type%22:%22containsString%22,%22fieldName%22:%22name%22,%22contains%22:%22Office%22%7D%5D%7D";
+          var encodedFilter = "%7B%22type%22:%22logOp%22,%22operation%22:%22AND%22,%22filters%22:%5B%7B%22type%22:%22containsString%22,%22fieldName%22:%22name%22,%22contains%22:%22Office%22%7D%5D%7D&limit=5&offset=0";
           $httpBackend.expectGET('/path/to/collection?filter=' + encodedFilter).respond(200, { results: [] });
           collectionWithModel.fetch();
 
@@ -78,14 +102,14 @@
           collectionWithModel.setCustomFilters(mwCollectionFilter.containsString('name', 'Office'));
           expect(collectionWithModel.getFilters()).toEqual(mwCollectionFilter.containsString('name', 'Office'));
 
-          var encodedFilter = "%7B%22type%22:%22containsString%22,%22fieldName%22:%22name%22,%22contains%22:%22Office%22%7D";
+          var encodedFilter = "%7B%22type%22:%22containsString%22,%22fieldName%22:%22name%22,%22contains%22:%22Office%22%7D&limit=5&offset=0";
           $httpBackend.expectGET('/path/to/collection?filter=' + encodedFilter).respond(200, { results: [] });
           collectionWithModel.fetch();
 
           $httpBackend.flush();
         });
 
-        it('shoud reset custom filters', function () {
+        it('should reset custom filters', function () {
           expect(collectionWithModel.getFilters()).toEqual(null);
           collectionWithModel.setCustomFilters(mwCollectionFilter.containsString('name', 'Foobar'));
           expect(collectionWithModel.getFilters()).toEqual(mwCollectionFilter.containsString('name', 'Foobar'));
@@ -105,7 +129,7 @@
 
       describe('Pagination', function () {
         it('should add parameters limit and offset with the initial values', function () {
-          $httpBackend.expectGET('/path/to/collection').respond(200, { results: [] });
+          $httpBackend.expectGET('/path/to/collection?limit=5&offset=0').respond(200, { results: [] });
           collectionWithModel.fetch();
           $httpBackend.flush();
         });
@@ -237,7 +261,7 @@
       });
 
       it('should return selected models', function () {
-        obj1.selectionToggle();
+        obj1.toggleSelect();
         expect(obj1.selected).toBe(true);
         expect(mwCollection.selectedModels().length).toBe(1);
       });
@@ -245,8 +269,8 @@
       it('should return if all models are selected', function () {
         expect(mwCollection.selectedModels().length).toBe(0);
         expect(mwCollection.allSelected()).toBe(false);
-        obj1.selectionToggle();
-        obj2.selectionToggle();
+        obj1.toggleSelect();
+        obj2.toggleSelect();
         expect(mwCollection.selectedModels().length).toBe(2);
         expect(mwCollection.allSelected()).toBe(true);
       });
@@ -272,10 +296,10 @@
         obj1.selected = true;
         expect(mwCollection.selectedModels().length).toBe(1);
         expect(mwCollection.allSelected()).toBe(false);
-        mwCollection.selectionToggleAll();
+        mwCollection.toggleSelectAll();
         expect(mwCollection.selectedModels().length).toBe(2);
         expect(mwCollection.allSelected()).toBe(true);
-        mwCollection.selectionToggleAll();
+        mwCollection.toggleSelectAll();
         expect(mwCollection.selectedModels().length).toBe(0);
         expect(mwCollection.allSelected()).toBe(false);
       });
@@ -284,7 +308,7 @@
         expect(mwCollection.allSelected()).toBe(false);
 
         var AnotherModel = MwModel.extend({
-          selectionDisabled: function () {
+          selectDisabled: function () {
             return true;
           }
         });
@@ -300,5 +324,6 @@
     });
 
   });
+
 
 })();

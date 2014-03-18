@@ -40,10 +40,11 @@ module.exports = function(grunt) {
       options: {
         jshintrc: true
       }
-    },
+    }
   });
 
   grunt.registerTask('test', ['jshint', 'karma:unit']);
+  grunt.registerTask('test:once', ['jshint', 'karma:single']);
   grunt.registerTask('default', ['jshint', 'karma:single', 'concat', 'uglify']);
 
 };

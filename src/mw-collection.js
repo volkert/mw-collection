@@ -10,35 +10,43 @@
   };
 
   // Call the fn on the prototype of klass, adds global options
-  var callSuper = function (klass, fn) {
+  var callSuperAndAddGlobalOptions = function (klass, fn) {
     return function (opts) {
       opts = addWaitToOptions(opts);
-      klass.prototype[fn].apply(this, [opts]);
+      return klass.prototype[fn].apply(this, [opts]);
     };
   };
 
   angular.module('mwCollection', [])
 
       .run(function ($http) {
-
         Backbone.ajax = function (options) {
+
+          // Ignore notifications for given response codes
+          if(options.data) {
+            var requestData = JSON.parse(options.data);
+            options.ignoreHandleResponseCodes = requestData.ignoreHandleResponseCodes;
+          }
 
           // Set HTTP Verb as 'method'
           options.method = options.type;
-
           // Use angulars $http implementation for requests
           return $http.apply(angular, [options]).then(options.success, options.error);
         };
-
       })
 
       .factory('MwCollection', function () {
 
         return Backbone.Collection.extend({
-          limit: null,
-          offset: null,
-          create: callSuper(Backbone.Collection, 'create'),
+          create: callSuperAndAddGlobalOptions(Backbone.Collection, 'create'),
           _filters: null,
+          initialize: function() {
+            // Copy initial filter values into variable where it can be recovered on resetFilters()
+            this.__initialFilterValues = angular.copy(this.filterValues);
+
+            // TODO: load persisted filters into this.filterValues and sortOrder here
+            // ....
+          },
           getFilters: function () {
             // Custom filter definition existing?
             if (angular.isFunction(this.filterDefinition) && this._filters === null) {
@@ -49,11 +57,14 @@
           },
           filterValues: {},
           setFilters: function (filterMap) {
+            // TODO: persist filters here
+            // ....
+
             angular.forEach(filterMap, function (value, key) {
               if (_.has(this.filterValues, key)) {
                 this.filterValues[key] = value;
               } else {
-                throw new Error('Filter named \'' + key + '\' not found, did you add it to filterParams of the model?');
+                throw new Error('Filter named \'' + key + '\' not found, did you add it to filterValues of the model?');
               }
             }, this);
           },
@@ -61,10 +72,8 @@
             this._filters = customFilter;
           },
           resetFilters: function () {
+            this.filterValues = angular.copy(this.__initialFilterValues);
             this._filters = null;
-            angular.forEach(this.filterValues, function (value, key) {
-              this.filterValues[key] = null;
-            }, this);
           },
           sync: function (method, model, options) {
             options.params = options.params || {};
@@ -84,16 +93,27 @@
                 options.params.offset = this.page > 1 ? this.perPage * (this.page - 1) : 0;
               }
 
+              // Sort order
+              if (this._sortOrder) {
+                options.params.sortOrder = this._sortOrder;
+              }
+
               // Fallback to limit and offset if they're set manually, overwrites pagination settings
               if (this.limit || this.offset) {
                 options.params.limit = this.limit;
                 options.params.offset = this.offset;
+              }
+
+              // Custom URL parameters
+              if (this.customUrlParams) {
+                angular.extend(options.params, this.customUrlParams);
               }
             }
 
             return Backbone.Collection.prototype.sync.apply(this, [method, model, options]);
           },
           parse: function (response) {
+            this.total = response.data.total;
             return response.data.results;
           },
           selectedModels: function () {
@@ -116,7 +136,7 @@
             });
             return allSelected;
           },
-          selectionToggleAll: function () {
+          toggleSelectAll: function () {
             if (this.allSelected()) {
               this.unselectAll();
             } else {
@@ -137,11 +157,29 @@
             var allDisabled = true;
             angular.forEach(this.models, function (model) {
               if (allDisabled) {
-                allDisabled = model.selectionDisabled();
+                allDisabled = model.selectDisabled();
               }
             });
             return allDisabled;
-          }
+          },
+          limit: null,
+          offset: null,
+          page: 1,
+          perPage: 30,
+          nextPage: function () {
+            this.page += 1;
+            this.fetch({remove: false});
+          },
+          _sortOrder: null,
+          setSortOrder: function(sortOrder) {
+            // TODO: persist sortOrder here
+            // ....
+            this._sortOrder = sortOrder;
+          },
+          getSortOrder: function() {
+            return this._sortOrder;
+          },
+          customUrlParams: null
         });
 
       })
@@ -150,8 +188,16 @@
 
         return Backbone.Model.extend({
           idAttribute: 'uuid',
-          destroy: callSuper(Backbone.Model, 'destroy'),
-          save: callSuper(Backbone.Model, 'save'),
+          destroy: callSuperAndAddGlobalOptions(Backbone.Model, 'destroy'),
+          save: callSuperAndAddGlobalOptions(Backbone.Model, 'save'),
+          initialize: function() {
+            // When a model gets removed, make sure to decrement the total count on the collection
+            this.on('destroy', function() {
+              if(this.collection.total && this.collection.total > 0) {
+                this.collection.total--;
+              }
+            }, this);
+          },
           parse: function (response) {
             // For standalone models, parse the response
             if (response.data && response.data.results) {
@@ -171,12 +217,12 @@
             return callSet;
           },
           selected: false,
-          selectionToggle: function () {
-            if (!this.selectionDisabled()) {
+          toggleSelect: function () {
+            if (!this.selectDisabled()) {
               this.selected = !this.selected;
             }
           },
-          selectionDisabled: function () {
+          selectDisabled: function () {
             return false;
           }
         });
@@ -202,15 +248,18 @@
           },
 
           and: function (filters) {
-            return this.logOp(filters, 'and');
+            return this.logOp(filters, 'AND');
+          },
+
+          nand: function (filters) {
+            return this.logOp(filters, 'NAND');
           },
 
           or: function (filters) {
-            return this.logOp(filters, 'or');
+            return this.logOp(filters, 'OR');
           },
 
           logOp: function (filters, operator) {
-            operator = operator.toLowerCase() === 'or' ? 'OR' : 'AND';
             filters = _.without(filters, null); // Removing null values from existing filters
 
             return filters.length === 0 ? null : { // Ignore logOps with empty filters
@@ -226,11 +275,18 @@
               fieldName: fieldName,
               value: value
             });
+          },
+
+          like: function (fieldName, value) {
+            return returnNullOrObjectFor(value, {
+              type: 'like',
+              fieldName: fieldName,
+              like: value
+            });
           }
         };
 
       })
-
   ;
 
 })();

@@ -72,7 +72,7 @@ Keys to set on collection level:
 Instance methods:
 
 * `nextPage()` sets values to display the next page and fetches new models and adds them into the existing collection.
-
+* `hasNextPage()` returns true/false if a next page is available.
 
 ### Sorting
 

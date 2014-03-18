@@ -4,7 +4,7 @@ displayed: {{ categories.length }}
 <div ng-repeat="category in categories.models">
   {{ category.attributes.name | json }}
 </div>
-<button ng-if="categories.length < categories.total"
+<button ng-if="categories.hasNextPage()"
         ng-click="categories.nextPage()">
   Load more
 </button>

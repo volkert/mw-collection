@@ -171,6 +171,9 @@
             this.page += 1;
             this.fetch({remove: false});
           },
+          hasNextPage: function() {
+            return this.total > this.length;
+          },
           _sortOrder: null,
           setSortOrder: function(sortOrder) {
             // TODO: persist sortOrder here

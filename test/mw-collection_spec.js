@@ -186,6 +186,16 @@
           collectionWithModel.fetch();
           $httpBackend.flush();
         });
+
+        it('should return true if a next page is available', function () {
+          collectionWithModel.total = 10;
+          collectionWithModel.length = 5;
+          expect(collectionWithModel.hasNextPage()).toBe(true);
+
+          collectionWithModel.total = 20;
+          collectionWithModel.length = 20;
+          expect(collectionWithModel.hasNextPage()).toBe(false);
+        });
       });
 
     });

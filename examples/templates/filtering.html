@@ -1,0 +1,17 @@
+<input type="text" ng-model="apps.filterValues.name" placeholder="Search for app name"/>
+<button ng-click="apps.fetch()">Search</button>
+<button ng-click="apps.resetFilters(); apps.fetch()">Reset</button>
+
+    <br>
+
+<select
+    ng-model="apps.filterValues.platform"
+    ng-change="apps.fetch()">
+  <option value="">Filter by platform</option>
+  <option value="ANDROID">Android</option>
+  <option value="IOS">iOS</option>
+</select>
+
+<div ng-repeat="app in apps.models">
+  <pre>{{ app | json}}</pre>
+</div>

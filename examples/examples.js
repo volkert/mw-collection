@@ -11,31 +11,31 @@ angular.module('mwCollectionExamples', ['mwCollection', 'ngRoute'])
       $routeProvider
 
           .when('/usageCollection', {
-            templateUrl: 'usage_collection.html',
+            templateUrl: 'templates/usage_collection.html',
             controller: 'UsageCollectionController',
             resolve: resolve
           })
 
           .when('/usageModel', {
-            templateUrl: 'usage_model.html',
+            templateUrl: 'templates/usage_model.html',
             controller: 'UsageModelController',
             resolve: resolve
           })
 
           .when('/filtering', {
-            templateUrl: 'filtering.html',
+            templateUrl: 'templates/filtering.html',
             controller: 'FilteringController',
             resolve: resolve
           })
 
           .when('/pagination', {
-            templateUrl: 'pagination.html',
+            templateUrl: 'templates/pagination.html',
             controller: 'PaginationController',
             resolve: resolve
           })
 
           .when('/sorting', {
-            templateUrl: 'sorting.html',
+            templateUrl: 'templates/sorting.html',
             controller: 'SortingController',
             resolve: resolve
           })

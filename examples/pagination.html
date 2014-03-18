@@ -1,0 +1,10 @@
+total: {{ categories.total }} <br/>
+displayed: {{ categories.length }}
+<hr>
+<div ng-repeat="category in categories.models">
+  {{ category.attributes.name | json }}
+</div>
+<button ng-if="categories.length < categories.total"
+        ng-click="categories.nextPage()">
+  Load more
+</button>

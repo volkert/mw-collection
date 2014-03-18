@@ -1,0 +1,4 @@
+<div ng-repeat="category in categories.models">
+  {{ category.attributes.name | json }}
+  <button ng-click="category.destroy()">Destroy</button>
+</div>

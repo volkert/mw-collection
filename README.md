@@ -26,7 +26,7 @@ Declare this module as a dependency in your AngularJS app:
 
 # Usage
 
-See `examples/` folder for some code.
+See `examples/` folder for some code. To see examples in action, run `grunt serve` from this repos root and browse to [http://localhost:9010/examples](http://localhost:9010/examples).
 
 # API
 
@@ -64,13 +64,15 @@ Pagination on mCAP is done with `limit` and `offset` parameters. To make paginat
 Keys to set on collection level:
 
 * `page` (Integer) page number to fetch. Default: 1
-* `perPage` (Integer) amount of models per page. Default: 30
+* `perPage` (Integer) amount of models per page. Default: 30, set to `null` if you want to disable pagination.
 * `limit` (Integer) sets value directly. Overrides values calculated by `page` and `perPage`
 * `offset` (Integer) sets value directly. Overrides values calculated by `page` and `perPage`
+* `total` total amount of entries coming from response (to set in `parse` function)
 
 Instance methods:
 
-* `nextPage()` sets values to display the next page and fetches new models and adds them into the existing collection. 
+* `nextPage()` sets values to display the next page and fetches new models and adds them into the existing collection.
+
 
 ### Sorting
 

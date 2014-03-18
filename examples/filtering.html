@@ -1,0 +1,7 @@
+<div ng-repeat="category in categories.models">
+  {{ category.attributes.name | json }}
+</div>
+
+<input type="text" ng-model="categories.filterValues.name" />
+<button ng-click="categories.fetch()">Search</button>
+<button ng-click="categories.resetFilters(); categories.fetch()">Reset</button>

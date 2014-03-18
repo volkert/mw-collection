@@ -35,9 +35,10 @@
         };
       })
 
-      .factory('MwCollection', function () {
+      .factory('MwCollection', function (MwModel) {
 
         return Backbone.Collection.extend({
+          model: MwModel,
           create: callSuperAndAddGlobalOptions(Backbone.Collection, 'create'),
           _filters: null,
           initialize: function() {

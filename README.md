@@ -16,7 +16,7 @@ mwCollection adds a model layer for mCAP backends to AngularJS which uses Backbo
 # Installation
 	$ bower install https://github.com/volkert/mw-collection.git
 	
-Reference from you html file:
+Reference from your html file:
 
 	<script src="bower_components/mw-collection/dist/mw-collection.min.js"	
 	
@@ -26,7 +26,7 @@ Declare this module as a dependency in your AngularJS app:
 
 # Usage
 
-See `examples/` folder for some code. To see examples in action, run `grunt serve` from this repos root and browse to [http://localhost:9010/examples](http://localhost:9010/examples).
+See `examples/` folder for some code. To see examples in action, run `grunt serve` and go to [http://localhost:9010/examples](http://localhost:9010/examples)
 
 # API
 
@@ -72,7 +72,7 @@ Keys to set on collection level:
 Instance methods:
 
 * `nextPage()` sets values to display the next page and fetches new models and adds them into the existing collection.
-* `hasNextPage()` returns true/false if a next page is available.
+
 
 ### Sorting
 
@@ -129,6 +129,7 @@ Build minified version to dist folder
 * Persist filter/sort settings and make it configurable as a feature
 * Add all existing filters as functions to `MwCollectionFilter`. <br/>
   See: [Filter mechanism (mCAP REST API) - M-Way Solutions Wiki](https://wiki.mwaysolutions.com/confluence/display/mCAPTECH/mCAP+REST+API#mCAPRESTAPI-Filtermechanism)
+* Make some options configurable. For example `{ wait: true }` as default request option
 	
 # License
 

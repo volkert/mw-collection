@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/volkert/mw-collection.png?branch=master)](https://travis-ci.org/volkert/mw-collection)
+
 # mwCollection for AngularJS and mCAP
 
 mwCollection adds a model layer for mCAP backends to AngularJS which uses Backbone.Model and Backbone.Collection. 

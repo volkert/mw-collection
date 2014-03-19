@@ -9,7 +9,7 @@
   "author": "Volker Tietz <volker.tietz@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "grunt test:once"
+    "test": "./node_modules/.bin/karma start --single-run --browsers PhantomJS"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
